@@ -68,22 +68,22 @@ class UserView(APIView):
 
 class UserRecords(APIView):
     def get(self, request):
-        #user = User.objects.all()
+        user = User.objects.order_by('-record')
 
-        users = [User.nickname for User in User.objects.all()]
-        records = [User.record for User in User.objects.all()]
+        # users = [User.nickname for User in User.objects.all()]
+        # records = [User.record for User in User.objects.all()]
+        #
+        # users_records = dict(zip(users, records))
+        # print(users_records)
+        #
+        # users_records = dict(sorted(users_records.items(), key=lambda item: item[1], reverse=True))
+        # print(users_records)
 
-        users_records = dict(zip(users, records))
-        print(users_records)
 
-        users_records = dict(sorted(users_records.items(), key=lambda item: item[1], reverse=True))
-        print(users_records)
+        selializer = UserSerializer(user, many=True)
 
-
-        #selializer = UserSerializer(users_records)
-
-        #return Response(selializer.data)
-        return Response(users_records)
+        return Response(selializer.data)
+        #return Response(users_records)
 
 
 class LogoutView(APIView):
