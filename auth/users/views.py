@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from rest_framework.views import APIView
 
 from .models import User
@@ -64,6 +65,26 @@ class UserView(APIView):
         selializer = UserSerializer(user)
 
         return Response(selializer.data)
+
+class UserRecords(APIView):
+    def get(self, request):
+        #user = User.objects.all()
+
+        users = [User.nickname for User in User.objects.all()]
+        records = [User.record for User in User.objects.all()]
+
+        users_records = dict(zip(users, records))
+        print(users_records)
+
+        users_records = dict(sorted(users_records.items(), key=lambda item: item[1], reverse=True))
+        print(users_records)
+
+
+        #selializer = UserSerializer(users_records)
+
+        #return Response(selializer.data)
+        return Response(users_records)
+
 
 class LogoutView(APIView):
     def post(self, request):
