@@ -1,8 +1,13 @@
+from django.http import JsonResponse
 from django.shortcuts import render
+from rest_framework import status
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.parsers import JSONParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, BalanceSerializer, RecordSerializer
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 import jwt, datetime
@@ -34,7 +39,7 @@ class LoginView(APIView):
             'iat': datetime.datetime.utcnow()
         }
 
-        token = jwt.encode(payload, 'secret', algorithm='HS256')
+        token = jwt.encode(payload, 'secret', algorithm='HS256').decode("utf-8")
 
         response = Response({
             'jwt': token,
@@ -70,20 +75,9 @@ class UserRecords(APIView):
     def get(self, request):
         user = User.objects.order_by('-record')
 
-        # users = [User.nickname for User in User.objects.all()]
-        # records = [User.record for User in User.objects.all()]
-        #
-        # users_records = dict(zip(users, records))
-        # print(users_records)
-        #
-        # users_records = dict(sorted(users_records.items(), key=lambda item: item[1], reverse=True))
-        # print(users_records)
-
-
-        selializer = UserSerializer(user, many=True)
+        selializer = RecordSerializer(user, many=True)
 
         return Response(selializer.data)
-        #return Response(users_records)
 
 
 class LogoutView(APIView):
@@ -95,3 +89,11 @@ class LogoutView(APIView):
         }
 
         return response
+
+class UpdateUserBalance(APIView):
+    def put(self, request):
+        user = User.objects.order_by('-balance')
+
+        selializer = BalanceSerializer(user, many=True)
+
+        return Response(selializer.data)
