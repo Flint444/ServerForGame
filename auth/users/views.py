@@ -1,13 +1,9 @@
-from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework import status
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 
 from .models import User
-from .serializers import UserSerializer, BalanceSerializer, RecordSerializer
+from .serializers import UserSerializer, RecordSerializer
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 import jwt, datetime
@@ -39,7 +35,7 @@ class LoginView(APIView):
             'iat': datetime.datetime.utcnow()
         }
 
-        token = jwt.encode(payload, 'secret', algorithm='HS256').decode("utf-8")
+        token = jwt.encode(payload, 'secret', algorithm='HS256')
 
         response = Response({
             'jwt': token,
@@ -79,7 +75,6 @@ class UserRecords(APIView):
 
         return Response(selializer.data)
 
-
 class LogoutView(APIView):
     def post(self, request):
         response = Response()
@@ -92,8 +87,38 @@ class LogoutView(APIView):
 
 class UpdateUserBalance(APIView):
     def put(self, request):
-        user = User.objects.order_by('-balance')
+        token = request.COOKIES.get('jwt')
 
-        selializer = BalanceSerializer(user, many=True)
+        if not token:
+            raise AuthenticationFailed('Не авторизован!')
 
-        return Response(selializer.data)
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Не авторизован!')
+
+        user = User.objects.filter(id = payload['id']).first()
+        user.balance = request.data["balance"]
+        user.save()
+        response = Response(data={"message": "Баланс успешно изменён"})
+        return response
+
+class UpdateUserRecord(APIView):
+    def put(self, request):
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Не авторизован!')
+
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Не авторизован!')
+
+        user = User.objects.filter(id = payload['id']).first()
+        user.record = request.data["record"]
+        user.save()
+        response = Response(data={"message": "Рекорд успешно обновлён"})
+        return response
+
+

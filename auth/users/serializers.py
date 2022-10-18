@@ -25,13 +25,4 @@ class RecordSerializer(serializers.ModelSerializer):
         model = User
         fields = ['nickname', 'record']
 
-class BalanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['nickname', 'balance']
-    def update(self, instance, validated_data):
-        instance.balance += validated_data.get("balance", instance.balance)
-        instance.save()
-        return instance
-
 
