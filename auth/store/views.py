@@ -9,7 +9,7 @@ from .models import Store, Inventory
 
 class ShowStore(APIView):
     def get(self, request):
-        user = Store.objects.all()
+        user = Store.objects.order_by('title')
 
         selializer = StoreSerializer(user, many=True)
 
@@ -22,3 +22,4 @@ class ShowInventory(APIView):
         selializer = InventorySerializer(user, many=True)
 
         return Response(selializer.data)
+
