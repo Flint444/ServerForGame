@@ -1,11 +1,17 @@
 from django.contrib import admin
 from django.urls import path, include
-from . import views
-from .views import RegisterView, LoginView, UserView, LogoutView, UserRecords, UpdateUserBalance, UpdateUserRecord
+from .views import UserView, LogoutView, UserRecords, UpdateUserBalance, UpdateUserRecord, RegistrationAPIView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
-    path('register', RegisterView.as_view()),
-    path('login', LoginView.as_view()),
+    path('register', RegistrationAPIView.as_view()),
+
+    path('login', TokenObtainPairView.as_view()),
+    path('refresh-token', TokenRefreshView.as_view(), name='token_refresh'),
+
     path('user', UserView.as_view()),
     path('logout', LogoutView.as_view()),
     path('records', UserRecords.as_view()),
