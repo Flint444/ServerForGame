@@ -23,3 +23,11 @@ class ShowInventory(APIView):
 
         return Response(selializer.data)
 
+class Buy(APIView):
+    def post(self, request):
+        serializer = InventorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
+
