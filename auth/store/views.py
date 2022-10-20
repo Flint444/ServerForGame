@@ -30,4 +30,3 @@ class Buy(APIView):
         serializer.save()
 
         return Response(serializer.data)
-
